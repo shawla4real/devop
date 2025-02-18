@@ -1,11 +1,9 @@
 name: Terraform Deploy
 
 on:
-  # On push to main branch
+  push:
     branches:
       - main
-
-  ## Manual trigger
   workflow_dispatch:
 
 jobs:
@@ -13,11 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ap-south-1
-      TERRAFORM_VER: 1.5.1 # Same as your Terraform config
-      TERRAFORM_PATH: . # this will be path to Terraform files
+      TERRAFORM_VER: 1.5.1
+      TERRAFORM_PATH: .  # Path to Terraform files
 
     steps:
       - name: Checkout Repository
@@ -27,6 +22,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TERRAFORM_VER }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
       - name: Terraform Init
         working-directory: ${{ env.TERRAFORM_PATH }}
